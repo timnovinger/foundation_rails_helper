@@ -3,6 +3,7 @@ require 'action_view/helpers'
 module FoundationRailsHelper
   class FormBuilder < ActionView::Helpers::FormBuilder
     include ActionView::Helpers::TagHelper
+
     %w(file_field email_field text_field text_area telephone_field phone_field
        url_field number_field date_field datetime_field datetime_local_field
        month_field week_field time_field range_field search_field color_field ).each do |method_name|
@@ -21,13 +22,44 @@ module FoundationRailsHelper
       super(attribute, (text || "").html_safe, options)
     end
 
+    def switch(attribute, options = {}, checked_value = "1", unchecked_value = "0")
+      options[:for_switch] = true
+      options[:label] ||= ''
+      options[:label_options] ||= {}
+
+      if options[:label].blank?
+        if object.class.respond_to?(:human_attribute_name)
+          options[:label] = object.class.human_attribute_name(attribute)
+        else
+          options[:label] = attribute.to_s.humanize
+        end
+      end
+
+      html = ''
+      html += "<div class=\"switch #{options[:class]}\">"
+        options.delete(:class)
+        html += check_box(attribute, options, checked_value, unchecked_value)
+        options.delete(:for_switch)
+        html += label(attribute, options[:label], options[:label_options])
+      html += '</div>'
+
+      html.html_safe
+    end
 
     def check_box(attribute, options = {}, checked_value = "1", unchecked_value = "0")
-      custom_label(attribute, options[:label], options[:label_options]) do
-        options.delete(:label)
-        options.delete(:label_options)
-        super(attribute, options, checked_value, unchecked_value)
-      end + error_and_hint(attribute, options)
+      if options[:for_switch] == true
+        html = ''
+        options.delete(:for_switch)
+        html += super(attribute, options, checked_value, unchecked_value)
+        html += error_and_hint(attribute, options)
+        html.html_safe
+      else
+        custom_label(attribute, options[:label], options[:label_options]) do
+          options.delete(:label)
+          options.delete(:label_options)
+          super(attribute, options, checked_value, unchecked_value)
+        end + error_and_hint(attribute, options)
+       end
     end
 
     def radio_button(attribute, tag_value, options = {})
