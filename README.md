@@ -1,15 +1,22 @@
 # FoundationRailsHelper [![Build Status](https://secure.travis-ci.org/sgruhier/foundation_rails_helper.png)](http://travis-ci.org/sgruhier/foundation_rails_helper)
 
-Gem for Rails 4.1.x applications that use the excellent Zurb Foundation framework. For older rails versions, check out rails3 or rails4.0 branch)
+Gem for Rails 4.1+ applications that use the excellent Zurb Foundation framework.
 
 * [Zurb Foundation](https://github.com/zurb/foundation)
 * [Zurb Foundation Rails](https://github.com/zurb/foundation-rails)
 
 So far it includes:
 
-* A custom FormBuilder that generates a form using the Foundation framework. It replaces the current `form_for` so you don't have to change your Rails code. Error messages are properly displayed.
+* A custom Form Builder that generates a form using the Foundation framework classes. It replaces the current `form_for`, so there is no need to change your Rails code. Error messages are properly displayed.
 
 * A `display_flash_messages` helper method that uses Zurb Foundation Alerts UI.
+
+#### Compatibility
+
+* Only Rails 4.1/4.2 and Foundation 5 are fully supported
+* Some features may work with Foundation 4 and older, but results may vary, and markup which exists only for those versions will be gradually removed
+* Legacy branches exist for Rails 3 and 4.0 (see the rails3 and rails4.0 branches). These are not actively supported, and fixes are not retroactively applied, but pull requests are welcome.
+
 
 ## Screenshots
 
@@ -18,7 +25,7 @@ A classic devise sign up view will look like this:
 
 ```erb
 <%= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
-  <%= f.email_field :email %>
+  <%= f.email_field :email, label: 'E-mail' %>
   <%= f.password_field :password %>
   <%= f.password_field :password_confirmation %>
 
@@ -27,19 +34,27 @@ A classic devise sign up view will look like this:
 ```
 
 <table>
-  <tr>
-    <th>Form</th>
-    <th>Form with errors</th>
-  </tr>
-  <tr>
-    <td valign='top'> <img src="http://dl.dropbox.com/u/517768/sign-up.png"/></td>
-    <td valign='top'> <img src="http://dl.dropbox.com/u/517768/sign-up-with-errors.png"/></td>
-  </tr>
+  <thead>
+    <tr>
+      <th>Form</th>
+      <th>Form with errors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign='top'>
+        <img src="https://cloud.githubusercontent.com/assets/1400414/5791055/f10d45ca-9e6c-11e4-9513-a52e7a56feb9.png"/>
+      </td>
+      <td valign='top'>
+        <img src="https://cloud.githubusercontent.com/assets/1400414/5791057/f3455bb6-9e6c-11e4-882d-bbdc76bc9825.png"/>
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 ### Flash messages
 
-![Flash-message](http://dl.dropbox.com/u/517768/flash.png "Flash-message")
+![Flash-message](https://cloud.githubusercontent.com/assets/1400414/5791070/a13ecedc-9e6d-11e4-83cd-588fa296ef67.png "Flash-message")
 
 ## Installation
 
@@ -58,19 +73,13 @@ $ bundle
 
 ### Flash Messages
 
-To get access to `display_flash_messages` in your views, add
-
-```ruby
-include FoundationRailsHelper::FlashHelper
-```
-
-to `app/helpers/application_helper.rb`
+To use the built in flash helper, add `<%= display_flash_messages %>` to your layout file (eg. *app/views/layouts/application.html.erb*).
 
 ## Usage
 
 ### form_for
 
-Form_for wraps the standard rails form_for helper and adds a 'nice' class by default.
+Form_for wraps the standard rails form_for helper.
 
 ```erb
 <%= form_for @user do |f| %>
@@ -81,15 +90,9 @@ Form_for wraps the standard rails form_for helper and adds a 'nice' class by def
 generates:
 
 ```html
-<form accept-charset="UTF-8" action="/users" class="nice" id="new_user" method="post">
+<form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post">
   ...
-```
-
-Override the default class like so:
-
-```erb
-<%= form_for(@user, html: {class: 'mean'}) do |f| %>
-  ...
+</form>
 ```
 
 ### text_field and Field Helpers
@@ -104,19 +107,7 @@ generates:
 
 ```html
 <label for="user_email">Name</label>
-<input class="medium input-text" id="user_name" name="user[name]" type="text">
-```
-
-The 'input-text' class will always be added to the input element, but the 'medium' class can be replaced.
-
-```ruby
-f.text_field :name, class: 'large'
-```
-
-generates:
-
-```html
-<input class="large input-text" ... >
+<input id="user_name" name="user[name]" type="text">
 ```
 
 Prevent the generation of a label:
@@ -170,19 +161,26 @@ f.email_field :email
 generates:
 
 ```html
-<label class=" error" for="user_email">Email</label>
-<input class="medium input-text error" id="user_email" name="user[email]" type="email" value="">
-<small class="error medium input-text error">can't be blank</small>
+<label class="error" for="user_email">Email</label>
+<input class="error" id="user_email" name="user[email]" type="email" value="">
+<small class="error">can't be blank</small>
 ```
 
 The class attribute of the 'small' element will mirror the class attribute of the 'input' element.
 
 If the `html_safe_errors: true` option is specified on a field, then any HTML you may have embedded in a custom error string will be displayed with the html_safe option.
 
-## TODO
+## Configuration
+Add an initializer file to your Rails app: *config/initializers/foundation_rails_helper.rb*.  See below for current options.
 
-* Handle more UI components
-* Make something for ajax forms
+### Submit Button Class
+To use a different class for the [submit button](https://github.com/sgruhier/foundation_rails_helper#submit-button) used in `form_for`, add a config named **button_class**.  Please note, the button class can still be overridden by an options hash.
+```ruby
+FoundationRailsHelper.configure do |config|
+  # Default: 'small radius success button'
+  config.button_class = 'large secondary button'
+end
+```
 
 ## Contributing
 
@@ -194,7 +192,6 @@ If the `html_safe_errors: true` option is specified on a field, then any HTML yo
 
 ## Copyright
 
-Sébastien Gruhier (http://xilinus.com, http://v2.maptimize.com) - MIT LICENSE - 2012
+Sébastien Gruhier (http://xilinus.com, http://v2.maptimize.com) - MIT LICENSE - 2015
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/sgruhier/foundation_rails_helper/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

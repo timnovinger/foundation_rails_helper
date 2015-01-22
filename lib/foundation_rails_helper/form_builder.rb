@@ -63,10 +63,10 @@ module FoundationRailsHelper
     end
 
     def radio_button(attribute, tag_value, options = {})
-      options[:for] ||= "#{@object_name}_#{attribute}_#{tag_value}"
-      c = super(attribute, tag_value, options)
-      l = label(attribute, options.delete(:text), options)
-      l.gsub(/(for=\"\w*\"\>)/, "\\1#{c} ").html_safe
+      r = @template.radio_button(@object_name, attribute, tag_value, objectify_options(options))
+      l = label(attribute, options.delete(:text), options.merge!(value: tag_value))
+
+      "#{r}#{l}".html_safe
     end
 
     def password_field(attribute, options = {})
@@ -123,7 +123,7 @@ module FoundationRailsHelper
     end
 
     def submit(value=nil, options={})
-      options[:class] ||= "small radius success button"
+      options[:class] ||= FoundationRailsHelper.configuration.button_class
       super(value, options)
     end
 
@@ -169,8 +169,7 @@ module FoundationRailsHelper
       html = ''.html_safe
       html = custom_label(attribute, options[:label], options[:label_options]) if @options[:auto_labels] || options[:label]
       class_options = html_options || options
-      class_options[:class] ||= "medium"
-      class_options[:class] = "#{class_options[:class]} input-text"
+      class_options[:class] = class_options[:class].to_s
       class_options[:class] += " error" if has_error?(attribute)
       options.delete(:label)
       options.delete(:label_options)
