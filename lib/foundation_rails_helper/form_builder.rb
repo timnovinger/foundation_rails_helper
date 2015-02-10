@@ -47,20 +47,24 @@ module FoundationRailsHelper
     end
 
     def check_box(attribute, options = {}, checked_value = "1", unchecked_value = "0")
-      custom_label(attribute, options[:label], options[:label_options]) do
-        options.delete(:label)
-        options.delete(:label_options)
-        super(attribute, options, checked_value, unchecked_value)
-      end + error_and_hint(attribute, options)
+      if options[:for_switch] == true
+        html = ''
+        options.delete(:for_switch)
+        html += super(attribute, options, checked_value, unchecked_value)
+        html += error_and_hint(attribute, options)
+        html.html_safe
+      else
+        custom_label(attribute, options[:label], options[:label_options]) do
+          options.delete(:label)
+          options.delete(:label_options)
+          super(attribute, options, checked_value, unchecked_value)
+        end + error_and_hint(attribute, options)
+       end
     end
 
     def radio_button(attribute, tag_value, options = {})
-      options[:label_options] ||= {}
-      label_options = options.delete(:label_options).merge!(value: tag_value)
-      unless options[:label] == false
-        l = label(attribute, options.delete(:label), label_options)
-      end
       r = @template.radio_button(@object_name, attribute, tag_value, objectify_options(options))
+      l = label(attribute, options.delete(:text), options.merge!(value: tag_value))
 
       "#{r}#{l}".html_safe
     end

@@ -1,9 +1,7 @@
-## Version 1.0.0
+## Version HEAD
 
-* Released Feb 03rd 2015
+* Not Released
 * Added configuration option to set button class in an initializer
-* Updated to be compatible with Foundation 5.2.2
-* Bugfixes
 
 ## Version 0.5.0
 
