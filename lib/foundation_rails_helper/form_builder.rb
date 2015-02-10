@@ -23,7 +23,6 @@ module FoundationRailsHelper
     end
 
     def switch(attribute, options = {}, checked_value = "1", unchecked_value = "0")
-      options[:for_switch] = true
       options[:label] ||= ''
       options[:label_options] ||= {}
 
@@ -39,8 +38,7 @@ module FoundationRailsHelper
       html += "<div class=\"switch #{options[:class]}\">"
         options.delete(:class)
         html += check_box(attribute, options, checked_value, unchecked_value)
-        options.delete(:for_switch)
-        html += label(attribute, options[:label], options[:label_options])
+        html += label(attribute, options[:label], options[:label_options]) unless options[:label] === false
       html += '</div>'
 
       html.html_safe
