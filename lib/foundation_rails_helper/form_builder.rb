@@ -24,22 +24,25 @@ module FoundationRailsHelper
 
     def switch(attribute, options = {}, checked_value = "1", unchecked_value = "0")
       options[:for_switch] = true
-      options[:label] ||= ''
-      options[:label_options] ||= {}
-
-      if options[:label].blank?
-        if object.class.respond_to?(:human_attribute_name)
-          options[:label] = object.class.human_attribute_name(attribute)
-        else
-          options[:label] = attribute.to_s.humanize
-        end
-      end
 
       html = ''
       html += "<div class=\"switch #{options[:class]}\">"
         options.delete(:class)
+
         html += check_box(attribute, options, checked_value, unchecked_value)
         options.delete(:for_switch)
+
+        options[:label] ||= ''
+        options[:label_options] ||= {}
+
+        if options[:label].blank?
+          if object.class.respond_to?(:human_attribute_name)
+            options[:label] = object.class.human_attribute_name(attribute)
+          else
+            options[:label] = attribute.to_s.humanize
+          end
+        end
+
         html += label(attribute, options[:label], options[:label_options])
       html += '</div>'
 
